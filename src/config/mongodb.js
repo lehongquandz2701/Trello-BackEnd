@@ -1,15 +1,9 @@
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
+import { MongoClient, ServerApiVersion } from "mongodb";
+import { ENVS } from "./environment";
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
-const uri =
-  "mongodb+srv://lehongquan2701:<db_password>@cluster0-trello-api.fex1i.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0-Trello-api";
+let trelloDatabaseInstance = null;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
+const mongoClientInstance = new MongoClient(ENVS.MONGODB_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -17,18 +11,22 @@ const client = new MongoClient(uri, {
   },
 });
 
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
+export async function CONNECT_DB() {
+  // Connect the client to the server	(optional starting in v4.7)
+  await mongoClientInstance.connect();
+
+  // Send a ping to confirm a successful connection
+  trelloDatabaseInstance = mongoClientInstance.db(ENVS.DATABASE_NAME);
+  console.log("Pinged your deployment. You successfully connected to MongoDB!");
 }
-run().catch(console.dir);
+
+export const GET_DB = () => {
+  if (!trelloDatabaseInstance)
+    throw new Error("Must connect to Database first!");
+
+  return trelloDatabaseInstance;
+};
+
+export const CLOSE_DB = async () => {
+  await mongoClientInstance.close();
+};
