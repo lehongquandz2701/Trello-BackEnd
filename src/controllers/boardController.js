@@ -9,9 +9,7 @@ const createNew = async (req, res, next) => {
       message: "api create list board",
     });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: error.message,
-    });
+    next(error);
   }
 };
 
