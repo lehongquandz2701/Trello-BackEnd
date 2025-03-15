@@ -15,6 +15,8 @@ const createNew = async (req, res, next) => {
     await correctCondition.validateAsync(req.body, {
       abortEarly: false,
     });
+
+    next();
   } catch (error) {
     next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.messages));
   }
