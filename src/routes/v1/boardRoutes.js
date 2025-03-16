@@ -11,6 +11,8 @@ Router.route("/")
       message: "api get list board",
     });
   })
-  .post(boardValidate.createNew);
+  .post(boardValidate.createNew, boardController.createNew);
+
+Router.route("/:id").get(boardController.getDetail).put();
 
 export const boardRoutes = Router;
