@@ -16,6 +16,7 @@ const createNew = async (req, res, next) => {
       "string.max": "Description length limit exceeded",
       "string.min": "Description must be at least 3 characters",
     }),
+    type: Joi.string().valid("public", "private").required(),
   });
 
   try {
