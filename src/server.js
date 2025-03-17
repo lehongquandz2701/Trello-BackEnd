@@ -6,9 +6,13 @@ import exitHook from "async-exit-hook";
 import { ENVS } from "./config/environment";
 import { APIs_V1 } from "./routes/v1";
 import { errorHandlingMiddleware } from "./middlewares/errorMiddleware";
+import cors from "cors";
+import { corsOptions } from "./config/cors";
 
 const START_SERVER = () => {
   const app = express();
+
+  app.use(cors(corsOptions));
   app.use(express.json());
 
   app.use("/v1", APIs_V1);
