@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi, { object } from "joi";
 import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from "~/utils/validators";
@@ -19,6 +19,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false),
   type: Joi.string().valid("public", "private").required(),
 });
+
+const INVALID_UPDATE_FIELDS = ["id", "createdAt"];
 
 const createNew = async (data) => {
   try {
@@ -107,6 +109,34 @@ const pushColumnOrderIds = async (column) => {
   }
 };
 
+const update = async (boardId, updateData) => {
+  try {
+    Object.keys(updateData).forEach((fieldName) => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName];
+      }
+    });
+
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        {
+          _id: new ObjectId(boardId),
+        },
+        {
+          $set: updateData,
+        },
+        {
+          returnDocument: "after",
+        }
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -114,4 +144,5 @@ export const boardModel = {
   findOneById,
   getDetail,
   pushColumnOrderIds,
+  update,
 };

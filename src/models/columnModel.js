@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ObjectId, ReturnDocument } from "mongodb";
+import { ObjectId } from "mongodb";
 import { GET_DB } from "~/config/mongodb";
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from "~/utils/validators";
 
@@ -21,6 +21,8 @@ const COLUMN_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp("javascript").default(null),
   _destroy: Joi.boolean().default(false),
 });
+
+const INVALID_UPDATE_FIELDS = ["id", "createdAt", "boardId"];
 
 const createNew = async (data) => {
   try {
@@ -74,7 +76,41 @@ const pushCardOrderIds = async (card) => {
         }
       );
 
-    return result.value;
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const update = async (columnId, updateData) => {
+  try {
+    Object.keys(updateData).forEach((fieldName) => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName];
+      }
+
+      if (fieldName === "cardOrderIds" && !!updateData.cardOrderIds.length) {
+        updateData.cardOrderIds = updateData.cardOrderIds.map(
+          (i) => new ObjectId(i)
+        );
+      }
+    });
+
+    const result = await GET_DB()
+      .collection(COLUMN_COLLECTION_NAME)
+      .findOneAndUpdate(
+        {
+          _id: new ObjectId(columnId),
+        },
+        {
+          $set: updateData,
+        },
+        {
+          returnDocument: "after",
+        }
+      );
+
+    return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -86,4 +122,5 @@ export const columnModel = {
   createNew,
   findOneById,
   pushCardOrderIds,
+  update,
 };

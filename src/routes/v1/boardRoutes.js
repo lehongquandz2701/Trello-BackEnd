@@ -13,6 +13,13 @@ Router.route("/")
   })
   .post(boardValidate.createNew, boardController.createNew);
 
-Router.route("/:id").get(boardController.getDetail).put();
+Router.route("/:id")
+  .get(boardController.getDetail)
+  .put(boardValidate.update, boardController.update);
+
+Router.route("/support/moving_cards").put(
+  boardValidate.arrangeCardsColumn,
+  boardController.arrangeCardsColumn
+);
 
 export const boardRoutes = Router;
