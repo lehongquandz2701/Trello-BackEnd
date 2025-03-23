@@ -23,11 +23,17 @@ const START_SERVER = () => {
     res.end("<h1>Hello World!</h1><hr>");
   });
 
-  app.listen(ENVS.APP_PORT, ENVS.APP_HOST, () => {
-    console.log(
-      `Hello Trung Quan Dev, I am running at ${ENVS.APP_HOST}:${ENVS.APP_PORT}/`
-    );
-  });
+  if (ENVS.BUILD_MODE === "production") {
+    app.listen(process.env.PORT, () => {
+      console.log(`Hello Trung Quan Dev`);
+    });
+  } else {
+    app.listen(ENVS.APP_PORT, ENVS.APP_HOST, () => {
+      console.log(
+        `Hello Trung Quan Dev, I am running at ${ENVS.APP_HOST}:${ENVS.APP_PORT}/`
+      );
+    });
+  }
 
   exitHook(() => {
     CLOSE_DB();
