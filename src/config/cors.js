@@ -5,7 +5,7 @@ import { ENVS } from "./environment";
 
 export const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin && ENVS.BUILD_MODE === "dev") {
+    if (ENVS.BUILD_MODE === "dev") {
       return callback(null, true);
     }
 
