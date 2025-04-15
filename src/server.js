@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import express from "express";
-import { CONNECT_DB, CLOSE_DB } from "./config/mongodb";
+import { CLOSE_DB, CONNECT_DB } from "./config/mongodb";
 import exitHook from "async-exit-hook";
 import { ENVS } from "./config/environment";
 import { APIs_V1 } from "./routes/v1";
@@ -41,7 +41,6 @@ const START_SERVER = () => {
 };
 
 CONNECT_DB()
-  .then()
   .then(async () => {
     START_SERVER();
   })

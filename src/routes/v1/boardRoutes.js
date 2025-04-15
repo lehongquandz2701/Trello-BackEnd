@@ -1,9 +1,12 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
 import { boardController } from "~/controllers/boardController";
+import { handleVerifyToken } from "~/middlewares/verifyToken";
 import { boardValidate } from "~/validations/boardValidation";
 
 const Router = express.Router();
+
+Router.use(handleVerifyToken);
 
 Router.route("/")
   .get((req, res) => {
