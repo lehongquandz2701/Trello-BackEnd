@@ -7,4 +7,5 @@ export const ENVS = {
   APP_PORT: process.env.APP_PORT,
   BUILD_MODE: process.env.BUILD_MODE,
   PRIVATE_KEY_JWT: process.env.PRIVATE_KEY_JWT,
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
 };
