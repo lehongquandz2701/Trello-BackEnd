@@ -10,6 +10,19 @@ const register = async (req, res, next) => {
   }
 };
 
+const login = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization || "";
+    const idToken = authHeader.replace("Bearer ", "");
+
+    const user = await authService.login(idToken);
+    res.status(StatusCodes.OK).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const authController = {
   register,
+  login,
 };

@@ -1,8 +1,7 @@
-import { ENVS } from "~/config/environment";
-import jwt from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
+import admin from "~/config/firebase";
 
-export const handleVerifyToken = (req, res, next) => {
+export const handleVerifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
     return res
@@ -13,7 +12,8 @@ export const handleVerifyToken = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decodedToken = jwt.verify(token, ENVS.PRIVATE_KEY_JWT);
+    // const decodedToken = jwt.verify(token, ENVS.PRIVATE_KEY_JWT);
+    const decodedToken = await admin.auth().verifyIdToken(token);
     req.user = decodedToken;
     next();
   } catch (err) {

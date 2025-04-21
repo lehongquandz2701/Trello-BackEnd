@@ -1,6 +1,8 @@
+/* eslint-disable no-useless-catch */
 import Joi from "joi";
 import { GET_DB } from "~/config/mongodb";
 import { ObjectId } from "mongodb";
+import admin from "~/config/firebase";
 
 // Define Collection (name & schema)
 const USER_COLLECTION_NAME = "Users";
@@ -39,20 +41,49 @@ const USER_COLLECTION_SCHEMA = Joi.object({
 
 const createNew = async (data) => {
   try {
-    const validData = await USER_COLLECTION_SCHEMA.validateAsync(data, {
-      abortEarly: false,
-    });
     await GET_DB()
       .collection(USER_COLLECTION_NAME)
       .createIndex({ email: 1 }, { unique: true });
 
-    await checkExistingUser(validData.email);
+    await checkExistingUser(data.email);
 
     const createdUser = await GET_DB()
       .collection(USER_COLLECTION_NAME)
-      .insertOne(validData);
+      .insertOne(data);
 
     return createdUser;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const createUserFb = async (data) => {
+  try {
+    const validData = await USER_COLLECTION_SCHEMA.validateAsync(data, {
+      abortEarly: false,
+    });
+    if (!validData.email || !validData.password) return;
+
+    await admin.auth().createUser({
+      email: validData.email,
+      password: validData.password,
+    });
+
+    return await createNew(validData);
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const signIn = async (idToken) => {
+  try {
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    const userRecord = await admin.auth().getUser(decoded.uid);
+    //get user from Db
+    const user = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
+      email: userRecord.email,
+    });
+    return user;
   } catch (error) {
     throw new Error(error);
   }
@@ -88,7 +119,8 @@ const checkExistingUser = async (email) => {
 export const authModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
-  createNew,
   findOneById,
   checkExistingUser,
+  createUserFb,
+  signIn,
 };

@@ -6,4 +6,6 @@ const Router = express.Router();
 
 Router.route("/register").post(authValidate.createNew, authController.register);
 
+Router.route("/login").get(authController.login);
+
 export const authRoutes = Router;
